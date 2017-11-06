@@ -11,7 +11,7 @@
 from munge.proc.filter import Filter
 from apps.cn.output import OutputPrefacedPTBDerivation
 from munge.trees.traverse import nodes, leaves
-from munge.penn.nodes import Leaf, Node
+from munge.penn.aug_nodes import Leaf, Node
 from apps.cn.fix_utils import replace_kid
 from munge.util.config import config
 
@@ -45,12 +45,12 @@ class Clean(Filter, OutputPrefacedPTBDerivation):
         if merge_verb_compounds:
             for node in nodes(bundle.derivation):
                 if node.tag in self.MergedTags:
-                    replace_kid(node.parent, node, Leaf(node.tag, ''.join(kid.lex for kid in leaves(node)), node.parent))
+                    replace_kid(node.parent, node, Leaf(node.tag, ''.join(kid.lex for kid in leaves(node)), None, node.parent))
 
         if normalise_foreign_names:
             for leaf in leaves(bundle.derivation):
                 if self.is_candidate_foreign_name(leaf.lex):
-                    kids = [ Leaf(leaf.tag, bit, None) for bit in leaf.lex.split(INTERPUNCT) ]
+                    kids = [ Leaf(leaf.tag, bit, None, None) for bit in leaf.lex.split(INTERPUNCT) ]
                     replace_kid(leaf.parent, leaf, Node('NP-PN', kids))
 
         if self.accept(bundle.derivation):
